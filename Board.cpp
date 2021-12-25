@@ -1,8 +1,13 @@
 #include <iostream>
+#include <map>
+#include <string>
 using namespace std;
 class Board
 {
 public:
+	string coordinates = " abcdefgh";
+	map <char, int> transform = { {'a',1}, {'b',2}, {'c',3}, { 'd',4},{'e',5},{'f',6},{'g',7},{'h',8}};
+
 	char squares[9][9];
 	void set()
 	{
@@ -11,7 +16,7 @@ public:
 			squares[2][i] = 'P';
 			squares[7][i] = 'p';
 			for (int y = 3; y <= 6; y++)
-				squares[y][i] = '|';
+				squares[y][i] = ' ';
 
 		}
 		squares[1][1] = squares[1][8] = 'R';
