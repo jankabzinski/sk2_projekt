@@ -3,27 +3,27 @@ using namespace std;
 class Board
 {
 public:
-	char squares[8][8];
+	char squares[9][9];
 	void set()
 	{
-		for (int i = 0; i < 8; i++)
+		for (int i = 1; i <= 8; i++)
 		{
-			squares[1][i] = 'P';
-			squares[6][i] = 'p';
-			for (int y = 2; y < 6; y++)
-				squares[y][i] = ' ';
+			squares[2][i] = 'P';
+			squares[7][i] = 'p';
+			for (int y = 3; y <= 6; y++)
+				squares[y][i] = '|';
 
 		}
-		squares[0][0] = squares[0][7] = 'R';
-		squares[0][1] = squares[0][6] = 'N';
-		squares[0][2] = squares[0][5] = 'B';
-		squares[0][3] = 'Q';
-		squares[0][4] = 'K';
-		squares[7][0] = squares[7][7] = 'r';
-		squares[7][1] = squares[7][6] = 'n';
-		squares[7][2] = squares[7][5] = 'b';
-		squares[7][3] = 'q';
-		squares[7][4] = 'k';
+		squares[1][1] = squares[1][8] = 'R';
+		squares[1][2] = squares[1][7] = 'N';
+		squares[1][3] = squares[1][6] = 'B';
+		squares[1][4] = 'Q';
+		squares[1][5] = 'K';
+		squares[8][1] = squares[8][8] = 'r';
+		squares[8][2] = squares[8][7] = 'n';
+		squares[8][3] = squares[8][6] = 'b';
+		squares[8][4] = 'q';
+		squares[8][5] = 'k';
 	}
 
 };

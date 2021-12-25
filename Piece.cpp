@@ -3,12 +3,22 @@
 
 using namespace std;
 
-class Piece
-{
+class Piece{
 public:
 	int square[2];
-	virtual string addMove()
+	char sign;
+	virtual string addMoves()
 	{
+		return "e2-e5";
+	}
 
+};
+class Pawn: public Piece {
+public:
+	string addMoves()
+	{
+		return "e2-e6";
 	}
 };
+
+
