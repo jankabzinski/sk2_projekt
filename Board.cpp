@@ -14,8 +14,8 @@ public:
 		squares[0][0] = ' ';
 		for (int i = 1; i <= 8; i++)
 		{
-			squares[0][i] = i;
-			squares[i][0] = i;
+			squares[0][i] = this->coordinates[i];
+			squares[i][0] = i + 48;
 			squares[2][i] = 'P';
 			squares[7][i] = 'p';
 			for (int y = 3; y <= 6; y++)
@@ -35,9 +35,9 @@ public:
 	}
 	void show()
 	{
-		for (int i = 8; i >= 1; i--)
+		for (int i = 8; i >= 0; i--)
 		{
-			for (int j = 1; j <= 8; j++)
+			for (int j = 0; j <= 8; j++)
 				cout << this->squares[i][j] << " ";
 
 			cout << endl;

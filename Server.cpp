@@ -13,7 +13,17 @@ public:
 	vector <Piece> blackPieces;
 	vector <string> possibleMovesWhite;
 	vector <string> possibleMovesBlack;
-	bool turn = true;
+	char turn;
+	bool getCheck()
+	{
+		return this->check;
+	}
+
+	void setCheck(bool istnienia)
+	{
+		this->check = istnienia;
+	}
+
 	void setGame()
 	{
 		Piece* p = new Piece();
@@ -145,19 +155,24 @@ public:
 	}
 
 private:
+	bool check;
 	bool addMove(int from[2], int x, int y)
 	{
 		if (isFree(x, y) || isOpponent(from, x, y)) {
 			char color = this->board.squares[from[0]][from[1]] >= 97 ? 'b' : 'w';
 			if (color == 'b')
 			{
-				string move = to_string(from[0]) + to_string(from[1]) + "-" + to_string(x) + to_string(y);
+				string move = this->board.coordinates[from[0]] + to_string(from[1]) + "-" + this->board.coordinates[x] + to_string(y);
 				this->possibleMovesBlack.push_back(move);
+				if (this->board.squares[x][y] == 'K' && turn == 'w')
+					setCheck(true);
 			}
 			else
 			{
 				string move = to_string(from[0]) + to_string(from[1]) + "-" + to_string(x) + to_string(y);
 				this->possibleMovesWhite.push_back(move);
+				if (this->board.squares[x][y] == 'k' && turn == 'b')
+					setCheck(true);
 			}
 			return true;
 		}
