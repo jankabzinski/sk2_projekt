@@ -11,8 +11,11 @@ public:
 	char squares[9][9];
 	void set()
 	{
+		squares[0][0] = ' ';
 		for (int i = 1; i <= 8; i++)
 		{
+			squares[0][i] = i;
+			squares[i][0] = i;
 			squares[2][i] = 'P';
 			squares[7][i] = 'p';
 			for (int y = 3; y <= 6; y++)
@@ -30,5 +33,14 @@ public:
 		squares[8][4] = 'q';
 		squares[8][5] = 'k';
 	}
+	void show()
+	{
+		for (int i = 8; i >= 1; i--)
+		{
+			for (int j = 1; j <= 8; j++)
+				cout << this->squares[i][j] << " ";
 
+			cout << endl;
+		}
+	}
 };
