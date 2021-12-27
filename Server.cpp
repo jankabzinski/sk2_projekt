@@ -76,29 +76,29 @@ public:
 
 		p->sign = 'r';
 		p->square[1] = 1;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 		p->square[1] = 8;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 
 		p->sign = 'n';
 		p->square[1] = 2;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 		p->square[1] = 7;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 
 		p->sign = 'b';
 		p->square[1] = 3;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 		p->square[1] = 6;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 
 		p->sign = 'q';
 		p->square[1] = 4;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 
 		p->sign = 'k';
 		p->square[1] = 5;
-		this->whitePieces.push_back(*p);
+		this->blackPieces.push_back(*p);
 
 		delete p;
 		setCheck(false);
@@ -108,21 +108,22 @@ public:
 			possibleMoves(iter->square,iter->sign);
 
 	}
+
 	void possibleMoves(int oldSquare[2], char piece)
 	{
 		switch (piece)
 		{
 		case 'p':
-			if (isFree(0, -1)) addMove(oldSquare, 0, -1);
-			if (oldSquare[0] == 7 && isFree(0, -1) && isFree(0, -2)) addMove(oldSquare, 0, -2);
+			if (isFree(oldSquare,-1, 0)) addMove(oldSquare, -1, 0);
+			if (oldSquare[0] == 7 && isFree(oldSquare, -1, 0) && isFree(oldSquare, -2, 0)) addMove(oldSquare, -2, 0);
 			if (isOpponent(oldSquare,-1, -1)) addMove(oldSquare,-1, -1);
-			if (isOpponent(oldSquare,1, -1)) addMove(oldSquare,1, -1);
+			if (isOpponent(oldSquare,-1, 1)) addMove(oldSquare, -1, 1);
 			break;
 
 		case 'P':
-			if (isFree(0, 1)) addMove(oldSquare, 0, 1);
-			if (oldSquare[0] == 2 && isFree(0, 1) && isFree(0, 2)) addMove(oldSquare, 0, 2);
-			if (isOpponent(oldSquare, -1, 1)) addMove(oldSquare, -1, 1);
+			if (isFree(oldSquare, 1, 0)) addMove(oldSquare, 1, 0);
+			if (oldSquare[0] == 2 && isFree(oldSquare, 1, 0) && isFree(oldSquare, 2, 0)) addMove(oldSquare, 2, 0);
+			if (isOpponent(oldSquare, 1, -1)) addMove(oldSquare, 1, -1);
 			if (isOpponent(oldSquare, 1, 1)) addMove(oldSquare, 1, 1);
 			break;
 
@@ -171,11 +172,9 @@ public:
 		{
 			setCheck(false);
 			vector <string> truePossibleMoves;
-			vector <string> possibleOpponentsMoves;
-			for (auto iter = myMoves.begin(); iter < myMoves.end(); iter++)
+			for (auto iter = myMoves.begin(); iter != myMoves.end(); iter++)
 			{
-				makeMove(*iter, board, myPieces, opponentPieces);
-				possibleOpponentsMoves.clear();
+				//makeMove(*iter, board, myPieces, opponentPieces);
 
 				for (auto iter = opponentPieces.begin(); iter != opponentPieces.end(); iter++)
 					possibleMoves(iter->square, iter->sign);
@@ -195,6 +194,7 @@ public:
 			}
 		}
 	}
+	/*
 	void makeMove(string move, Board & board, vector<Piece>& myPieces, vector<Piece>& opponentPieces)
 	{
 		char sign = board.squares[move[0] - 96][move[1] - 48];
@@ -239,46 +239,57 @@ public:
 		}
 	}
 
+	*/
 private:
 	bool check;
 	bool addMove(int from[2], int x, int y)
 	{
-		if (isFree(x, y) || isOpponent(from, x, y)) {
+		if (isFree(from,x, y) || isOpponent(from, x, y)) {
 			char color = this->board.squares[from[0]][from[1]] >= 97 ? 'b' : 'w';
 			if (color == 'b')
 			{
-				string move = this->board.coordinates[from[0]] + to_string(from[1]) + "-" + this->board.coordinates[x] + to_string(y);
+				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + y] + to_string(from[0] + x);
 				this->possibleMovesBlack.push_back(move);
 				if (this->board.squares[x][y] == 'K' && turn == 'w' && this->board.squares[from[0]][from[1]] != 'p')
 					setCheck(true);
 			}
 			else
 			{
-				string move = to_string(from[0]) + to_string(from[1]) + "-" + to_string(x) + to_string(y);
+				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + y] + to_string(from[0]+x);
 				this->possibleMovesWhite.push_back(move);
-				if (this->board.squares[x][y] == 'k' && turn == 'b')
+				if (this->board.squares[from[0]+x][from[1]+y] == 'k' && turn == 'b' && this->board.squares[from[0]][from[1]] != 'P')
 					setCheck(true);
 			}
 			return true;
 		}
 		return false;
 	}
-
-	bool isFree(int x, int y)
+	bool isInside(int from[2], int x, int y)
 	{
-		if (x > 8 || x < 1 || y < 1 || y>8)
+		if (from[0] + x > 8 || from[0] + x < 1 || from[1] + y < 1 || from[1] + y>8)
+			return false;
+		else
+			return true;
+	}
+
+	bool isFree(int from[2],int x, int y)
+	{
+		if (!isInside(from,x,y))
 			return false;
 
-		return this->board.squares[x][y] == ' ';
+		return this->board.squares[from[0] + x][from[1] + y] == ' ';
 	}
 
 	bool isOpponent(int from[2], int x, int y)
 	{
-		if (this->board.squares[x][y] == ' ')
+		if (!isInside(from, x, y))
 			return false;
 
-		char color = this->board.squares[x][y] >= 97 ? 'b' : 'w';
-		char color2 = this->board.squares[x][y] >= 97 ? 'b' : 'w';
+		if (this->board.squares[from[0]+x][from[1]+y] == ' ')
+			return false;
+
+		char color = this->board.squares[from[0]][from[1]] >= 97 ? 'b' : 'w';
+		char color2 = this->board.squares[from[0] + x][from[1] + y] >= 97 ? 'b' : 'w';
 
 		return color != color2;
 	}
@@ -307,12 +318,12 @@ int main()
 			else
 			{
 				cin >> b;
-				while (find(a.possibleMovesWhite.begin(), a.possibleMovesWhite.end(), b) != a.possibleMovesWhite.end())
+				while (find(a.possibleMovesWhite.begin(), a.possibleMovesWhite.end(), b) == a.possibleMovesWhite.end())
 				{
 					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
 					cin >> b;
 				}
-				a.makeMove(b,a.board,a.whitePieces,a.blackPieces);
+				//a.makeMove(b,a.board,a.whitePieces,a.blackPieces);
 			}
 		}
 		else
@@ -329,12 +340,12 @@ int main()
 			else
 			{
 				cin >> b;
-				while (find(a.possibleMovesBlack.begin(), a.possibleMovesBlack.end(), b) != a.possibleMovesBlack.end())
+				while (find(a.possibleMovesBlack.begin(), a.possibleMovesBlack.end(), b) == a.possibleMovesBlack.end())
 				{
 					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
 					cin >> b;
 				}
-				a.makeMove(b, a.board, a.blackPieces, a.whitePieces);
+				//a.makeMove(b, a.board, a.blackPieces, a.whitePieces);
 			}
 		}
 
