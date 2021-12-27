@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
+#include <string>
 #include "Board.cpp"
 #include "Piece.cpp"
 
@@ -22,6 +23,10 @@ public:
 	void setCheck(bool istnienia)
 	{
 		this->check = istnienia;
+	}
+	void flipTurn()
+	{
+		this->turn = this->turn == 'b' ? 'w' : 'b';
 	}
 
 	void setGame()
@@ -96,10 +101,15 @@ public:
 		this->whitePieces.push_back(*p);
 
 		delete p;
+		setCheck(false);
+		this->turn = 'w';
+		this->possibleMovesWhite.clear();
+		for (auto iter = this->whitePieces.begin(); iter != this->whitePieces.end(); iter++)
+			possibleMoves(iter->square,iter->sign);
+
 	}
 	void possibleMoves(int oldSquare[2], char piece)
 	{
-		int newSquare[2];
 		switch (piece)
 		{
 		case 'p':
@@ -151,7 +161,82 @@ public:
 		default:
 			break;
 		}
+	}
 
+	bool isMate(vector<Piece> myPieces, Board board, vector <string> &myMoves, vector<Piece> opponentPieces)
+	{
+		if (getCheck() == false)
+			return false;
+		else
+		{
+			setCheck(false);
+			vector <string> truePossibleMoves;
+			vector <string> possibleOpponentsMoves;
+			for (auto iter = myMoves.begin(); iter < myMoves.end(); iter++)
+			{
+				makeMove(*iter, board, myPieces, opponentPieces);
+				possibleOpponentsMoves.clear();
+
+				for (auto iter = opponentPieces.begin(); iter != opponentPieces.end(); iter++)
+					possibleMoves(iter->square, iter->sign);
+
+				if (getCheck() == false)
+					truePossibleMoves.push_back(*iter);
+
+				setCheck(false);
+			}
+
+			if (truePossibleMoves.empty())
+				return true;
+			else
+			{
+				myMoves = truePossibleMoves;
+				return false;
+			}
+		}
+	}
+	void makeMove(string move, Board & board, vector<Piece>& myPieces, vector<Piece>& opponentPieces)
+	{
+		char sign = board.squares[move[0] - 96][move[1] - 48];
+		board.squares[move[0] - 96][move[1]-48] = ' ';
+		Piece* p = new Piece();
+		if (board.squares[move[3] - 96][move[4] - 48] == ' ')
+		{
+			p->sign = sign;
+			p->square[0] = move[0] - 96;
+			p->square[1] = move[1] - 48;
+
+			auto i = find(myPieces.begin(), myPieces.end(), *p);
+			i->square[0] = move[3] - 96;
+			i->square[1] = move[4] - 48;
+
+			board.squares[move[3] - 96][move[4] - 48] = sign;
+			return;
+		}
+		else
+		{
+			//usuniecie zbitej bierki
+			p->sign = board.squares[move[3] - 96][move[4] - 48]; 
+			p->square[0] = move[3] - 96;
+			p->square[1] = move[4] - 48;
+
+			auto iter = find(opponentPieces.begin(), opponentPieces.end(), *p);
+			if(iter != opponentPieces.end())
+				opponentPieces.erase(iter);
+
+			//zmiana 
+			p->sign = sign;
+			p->square[0] = move[0] - 96;
+			p->square[1] = move[1] - 48;
+
+			auto i = find(myPieces.begin(), myPieces.end(), *p);
+			i->square[0]= move[3] - 96;
+			i->square[1] = move[4] - 48;
+
+			board.squares[move[3] - 96][move[4] - 48] = sign;
+
+			delete p;
+		}
 	}
 
 private:
@@ -164,7 +249,7 @@ private:
 			{
 				string move = this->board.coordinates[from[0]] + to_string(from[1]) + "-" + this->board.coordinates[x] + to_string(y);
 				this->possibleMovesBlack.push_back(move);
-				if (this->board.squares[x][y] == 'K' && turn == 'w')
+				if (this->board.squares[x][y] == 'K' && turn == 'w' && this->board.squares[from[0]][from[1]] != 'p')
 					setCheck(true);
 			}
 			else
@@ -198,13 +283,64 @@ private:
 		return color != color2;
 	}
 
-	
 };
 int main()
 {
 	Game a;
 	a.board.set();
 	a.setGame();
-	a.board.show();	
+	while (true)
+	{
+		string b;
+		a.board.show();
+		if (a.turn == 'w')
+		{
+			a.possibleMovesWhite.clear();
+			for (auto iter = a.whitePieces.begin(); iter != a.whitePieces.end(); iter++)
+				a.possibleMoves(iter->square, iter->sign);
+
+			if (a.isMate(a.whitePieces, a.board, a.possibleMovesWhite, a.blackPieces))
+			{
+				cout << "CHECKMATE!!!" << endl;
+				break;
+			}
+			else
+			{
+				cin >> b;
+				while (find(a.possibleMovesWhite.begin(), a.possibleMovesWhite.end(), b) != a.possibleMovesWhite.end())
+				{
+					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
+					cin >> b;
+				}
+				a.makeMove(b,a.board,a.whitePieces,a.blackPieces);
+			}
+		}
+		else
+		{
+			a.possibleMovesBlack.clear();
+			for (auto iter = a.blackPieces.begin(); iter != a.blackPieces.end(); iter++)
+				a.possibleMoves(iter->square, iter->sign);
+
+			if (a.isMate(a.blackPieces, a.board, a.possibleMovesBlack, a.whitePieces))
+			{
+				cout << "CHECKMATE!!!" << endl;
+				break;
+			}
+			else
+			{
+				cin >> b;
+				while (find(a.possibleMovesBlack.begin(), a.possibleMovesBlack.end(), b) != a.possibleMovesBlack.end())
+				{
+					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
+					cin >> b;
+				}
+				a.makeMove(b, a.board, a.blackPieces, a.whitePieces);
+			}
+		}
+
+		a.setCheck(false);
+		a.flipTurn();
+	}
+	
 //97 a, 100 d, 104 h 
 }
