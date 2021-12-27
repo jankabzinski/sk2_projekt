@@ -37,10 +37,12 @@ public:
 	{
 		for (int i = 8; i >= 0; i--)
 		{
+			cout << "----------------------------" << endl;
 			for (int j = 0; j <= 8; j++)
-				cout << this->squares[i][j] << " ";
+				cout << "|" << this->squares[i][j] << " ";
 
-			cout << endl;
+			cout <<"|"<< endl;
 		}
+		cout << "----------------------------" << endl;
 	}
 };

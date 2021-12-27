@@ -72,7 +72,7 @@ public:
 		p->square[1] = 5;
 		this->whitePieces.push_back(*p);
 
-		p->square[0] = 7;// 1 linia
+		p->square[0] = 8;// 8 linia
 
 		p->sign = 'r';
 		p->square[1] = 1;
@@ -174,7 +174,7 @@ public:
 			vector <string> truePossibleMoves;
 			for (auto iter = myMoves.begin(); iter != myMoves.end(); iter++)
 			{
-				//makeMove(*iter, board, myPieces, opponentPieces);
+				makeMove(*iter, board, myPieces, opponentPieces);
 
 				for (auto iter = opponentPieces.begin(); iter != opponentPieces.end(); iter++)
 					possibleMoves(iter->square, iter->sign);
@@ -194,52 +194,51 @@ public:
 			}
 		}
 	}
-	/*
+	
 	void makeMove(string move, Board & board, vector<Piece>& myPieces, vector<Piece>& opponentPieces)
 	{
-		char sign = board.squares[move[0] - 96][move[1] - 48];
-		board.squares[move[0] - 96][move[1]-48] = ' ';
-		Piece* p = new Piece();
-		if (board.squares[move[3] - 96][move[4] - 48] == ' ')
+		char sign = board.squares[move[1] - 48][move[0] - 96];
+		board.squares[move[1] - 48][move[0] - 96] = ' ';
+		if (board.squares[move[4] - 48][move[3] - 96] == ' ')
 		{
-			p->sign = sign;
-			p->square[0] = move[0] - 96;
-			p->square[1] = move[1] - 48;
-
-			auto i = find(myPieces.begin(), myPieces.end(), *p);
-			i->square[0] = move[3] - 96;
-			i->square[1] = move[4] - 48;
-
-			board.squares[move[3] - 96][move[4] - 48] = sign;
-			return;
+			for (auto i = 0; i < myPieces.size(); i++)
+			{
+				if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
+				{
+					myPieces[i].square[0] = move[4] - 48;
+					myPieces[i].square[1] = move[3] - 96;
+					break;
+				}
+			}	
+			board.squares[move[4] - 48][move[3] - 96] = sign;
 		}
 		else
 		{
-			//usuniecie zbitej bierki
-			p->sign = board.squares[move[3] - 96][move[4] - 48]; 
-			p->square[0] = move[3] - 96;
-			p->square[1] = move[4] - 48;
-
-			auto iter = find(opponentPieces.begin(), opponentPieces.end(), *p);
-			if(iter != opponentPieces.end())
-				opponentPieces.erase(iter);
+			for (auto i = opponentPieces.begin(); i != opponentPieces.end(); i++)
+			{
+				if (i->sign == board.squares[move[4] - 48][move[3]-96] && i->square[0] == move[4] - 48 && i->square[1] == move[3] - 96)
+				{
+					opponentPieces.erase(i);
+					break;
+				}
+			}
+			board.squares[move[4] - 48][move[3] - 96] = sign;
 
 			//zmiana 
-			p->sign = sign;
-			p->square[0] = move[0] - 96;
-			p->square[1] = move[1] - 48;
+			for (auto i = 0; i < myPieces.size(); i++)
+			{
+				if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
+				{
+					myPieces[i].square[0] = move[4] - 48;
+					myPieces[i].square[1] = move[3] - 96;
+					break;
+				}
+			}
+			board.squares[move[4] - 48][move[3] - 96] = sign;
 
-			auto i = find(myPieces.begin(), myPieces.end(), *p);
-			i->square[0]= move[3] - 96;
-			i->square[1] = move[4] - 48;
-
-			board.squares[move[3] - 96][move[4] - 48] = sign;
-
-			delete p;
 		}
 	}
 
-	*/
 private:
 	bool check;
 	bool addMove(int from[2], int x, int y)
@@ -323,7 +322,7 @@ int main()
 					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
 					cin >> b;
 				}
-				//a.makeMove(b,a.board,a.whitePieces,a.blackPieces);
+				a.makeMove(b,a.board,a.whitePieces,a.blackPieces);
 			}
 		}
 		else
@@ -345,11 +344,10 @@ int main()
 					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
 					cin >> b;
 				}
-				//a.makeMove(b, a.board, a.blackPieces, a.whitePieces);
+				a.makeMove(b, a.board, a.blackPieces, a.whitePieces);
 			}
 		}
 
-		a.setCheck(false);
 		a.flipTurn();
 	}
 	
