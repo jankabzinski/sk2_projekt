@@ -15,6 +15,7 @@ public:
 	vector <string> possibleMovesWhite;
 	vector <string> possibleMovesBlack;
 	char turn;
+	bool checkInspect = false;
 	bool getCheck()
 	{
 		return this->check;
@@ -166,24 +167,44 @@ public:
 
 	bool isMate(vector<Piece> myPieces, Board board, vector <string> &myMoves, vector<Piece> opponentPieces)
 	{
+		this->checkInspect = true;
+		for (auto iter = opponentPieces.begin(); iter != opponentPieces.end(); iter++)
+			this->possibleMoves(iter->square, iter->sign);
+
 		if (getCheck() == false)
+		{
+			this->checkInspect = false;
 			return false;
+		}
 		else
 		{
-			setCheck(false);
 			vector <string> truePossibleMoves;
+			Board bCopy = this->board;
+			vector<Piece> opCopy = opponentPieces;
+
+			if (this->turn == 'w')
+				this->possibleMovesBlack.clear();
+			else
+				this->possibleMovesWhite.clear();
+
 			for (auto iter = myMoves.begin(); iter != myMoves.end(); iter++)
 			{
+				board = bCopy;
+				opponentPieces = opCopy;
+				setCheck(false);
+
 				makeMove(*iter, board, myPieces, opponentPieces);
 
-				for (auto iter = opponentPieces.begin(); iter != opponentPieces.end(); iter++)
-					possibleMoves(iter->square, iter->sign);
+				this->board = board;
+				for (auto i = opponentPieces.begin(); i != opponentPieces.end(); i++)
+					this->possibleMoves(i->square, i->sign);
 
+				this->board = bCopy;
 				if (getCheck() == false)
 					truePossibleMoves.push_back(*iter);
-
-				setCheck(false);
 			}
+
+			this->checkInspect = false;
 
 			if (truePossibleMoves.empty())
 				return true;
@@ -244,19 +265,18 @@ private:
 	bool addMove(int from[2], int x, int y)
 	{
 		if (isFree(from,x, y) || isOpponent(from, x, y)) {
-			char color = this->board.squares[from[0]][from[1]] >= 97 ? 'b' : 'w';
-			if (color == 'b')
+			if (this->turn == 'b' && this->checkInspect == false || this->turn == 'w' && this->checkInspect == true)
 			{
 				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + y] + to_string(from[0] + x);
 				this->possibleMovesBlack.push_back(move);
-				if (this->board.squares[x][y] == 'K' && turn == 'w' && this->board.squares[from[0]][from[1]] != 'p')
+				if (this->board.squares[from[0]+x][from[1]+y] == 'K' && this->turn == 'w' && this->board.squares[from[0]][from[1]] != 'p')
 					setCheck(true);
 			}
 			else
 			{
 				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + y] + to_string(from[0]+x);
 				this->possibleMovesWhite.push_back(move);
-				if (this->board.squares[from[0]+x][from[1]+y] == 'k' && turn == 'b' && this->board.squares[from[0]][from[1]] != 'P')
+				if (this->board.squares[from[0]+x][from[1]+y] == 'k' && this->turn == 'b' && this->board.squares[from[0]][from[1]] != 'P')
 					setCheck(true);
 			}
 			return true;
