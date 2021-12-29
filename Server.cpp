@@ -25,6 +25,7 @@ public:
 	{
 		this->check = istnienia;
 	}
+
 	void flipTurn()
 	{
 		this->turn = this->turn == 'b' ? 'w' : 'b';
@@ -181,6 +182,7 @@ public:
 			vector <string> truePossibleMoves;
 			Board bCopy = this->board;
 			vector<Piece> opCopy = opponentPieces;
+			vector <Piece> myCopy = myPieces;
 
 			if (this->turn == 'w')
 				this->possibleMovesBlack.clear();
@@ -189,6 +191,7 @@ public:
 
 			for (auto iter = myMoves.begin(); iter != myMoves.end(); iter++)
 			{
+				myPieces = myCopy;
 				board = bCopy;
 				opponentPieces = opCopy;
 				setCheck(false);
@@ -215,7 +218,37 @@ public:
 			}
 		}
 	}
-	
+	void areLegal(Board board, vector <string>& myMoves, vector<Piece> myPieces, vector<Piece> opponentPieces)
+	{
+		Board bCopy = this->board;
+		vector<Piece> opCopy = opponentPieces;
+		vector <Piece> myCopy = myPieces;
+
+		this->checkInspect = true;
+		
+		for (auto move = myMoves.begin(); move != myMoves.end(); move++)
+		{
+			setCheck(false);
+			board = bCopy;
+			opponentPieces = opCopy;
+			myPieces = myCopy;
+			this->makeMove(*move, board, myPieces, opponentPieces);
+
+			this->board = board;
+			for (auto i = opponentPieces.begin(); i != opponentPieces.end(); i++)
+				this->possibleMoves(i->square, i->sign);
+
+			this->board = bCopy;
+
+			if (getCheck() == true)
+			{
+				myMoves.erase(move--);//przesuniecie wskaznika do tylu, 
+				//bo po usunieciu przesuwa nam sie do przodu i ominelibysmy jeden element
+			}
+		}
+		this->checkInspect = false;
+	}
+
 	void makeMove(string move, Board & board, vector<Piece>& myPieces, vector<Piece>& opponentPieces)
 	{
 		char sign = board.squares[move[1] - 48][move[0] - 96];
@@ -336,6 +369,14 @@ int main()
 			}
 			else
 			{
+				a.areLegal(a.board,a.possibleMovesWhite,a.whitePieces,a.blackPieces);
+
+				if (a.possibleMovesWhite.empty())
+				{
+					cout << "STALEMATE!!!" << endl;
+					break;
+				}
+
 				cin >> b;
 				while (find(a.possibleMovesWhite.begin(), a.possibleMovesWhite.end(), b) == a.possibleMovesWhite.end())
 				{
@@ -358,6 +399,14 @@ int main()
 			}
 			else
 			{
+				a.areLegal(a.board, a.possibleMovesBlack, a.blackPieces, a.whitePieces);
+
+				if (a.possibleMovesBlack.empty())
+				{
+					cout << "STALEMATE!!!" << endl;
+					break;
+				}
+
 				cin >> b;
 				while (find(a.possibleMovesBlack.begin(), a.possibleMovesBlack.end(), b) == a.possibleMovesBlack.end())
 				{
