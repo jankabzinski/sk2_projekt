@@ -105,10 +105,6 @@ public:
 		delete p;
 		setCheck(false);
 		this->turn = 'w';
-		this->possibleMovesWhite.clear();
-		for (auto iter = this->whitePieces.begin(); iter != this->whitePieces.end(); iter++)
-			possibleMoves(iter->square,iter->sign);
-
 	}
 
 	void possibleMoves(int oldSquare[2], char piece)
@@ -251,45 +247,242 @@ public:
 
 	void makeMove(string move, Board & board, vector<Piece>& myPieces, vector<Piece>& opponentPieces)
 	{
-		char sign = board.squares[move[1] - 48][move[0] - 96];
-		board.squares[move[1] - 48][move[0] - 96] = ' ';
-		if (board.squares[move[4] - 48][move[3] - 96] == ' ')
+		char sign;
+		if (move != "O-O" && move != "O-O-O")
 		{
-			for (auto i = 0; i < myPieces.size(); i++)
+			sign = board.squares[move[1] - 48][move[0] - 96];
+			board.squares[move[1] - 48][move[0] - 96] = ' ';
+			if (board.squares[move[4] - 48][move[3] - 96] == ' ')
 			{
-				if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
+				for (auto i = 0; i < myPieces.size(); i++)
 				{
-					myPieces[i].square[0] = move[4] - 48;
-					myPieces[i].square[1] = move[3] - 96;
-					break;
+					if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
+					{
+						myPieces[i].square[0] = move[4] - 48;
+						myPieces[i].square[1] = move[3] - 96;
+						break;
+					}
 				}
-			}	
-			board.squares[move[4] - 48][move[3] - 96] = sign;
+				board.squares[move[4] - 48][move[3] - 96] = sign;
+			}
+			else
+			{
+				for (auto i = opponentPieces.begin(); i != opponentPieces.end(); i++)
+				{
+					if (i->sign == board.squares[move[4] - 48][move[3] - 96] && i->square[0] == move[4] - 48 && i->square[1] == move[3] - 96)
+					{
+						opponentPieces.erase(i);
+						break;
+					}
+				}
+				board.squares[move[4] - 48][move[3] - 96] = sign;
+
+				//zmiana 
+				for (auto i = 0; i < myPieces.size(); i++)
+				{
+					if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
+					{
+						myPieces[i].square[0] = move[4] - 48;
+						myPieces[i].square[1] = move[3] - 96;
+						break;
+					}
+				}
+				board.squares[move[4] - 48][move[3] - 96] = sign;
+			}
 		}
 		else
 		{
-			for (auto i = opponentPieces.begin(); i != opponentPieces.end(); i++)
+			if (this->turn == 'w')
 			{
-				if (i->sign == board.squares[move[4] - 48][move[3]-96] && i->square[0] == move[4] - 48 && i->square[1] == move[3] - 96)
+				if (move == "O-O")
 				{
-					opponentPieces.erase(i);
-					break;
+					board.squares[1][5] = ' ';
+					board.squares[1][6] = 'R';
+					board.squares[1][7] = 'K';
+					board.squares[1][8] = ' ';
+					sign = 'K';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign)
+						{
+							myPieces[i].square[1] = 7 + 48;
+							break;
+						}
+					}
+					sign = 'R';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign && myPieces[i].square[1] == 8 + 48)
+						{
+							myPieces[i].square[1] = 6 + 48;
+							break;
+						}
+					}
+				}
+				else
+				{
+					board.squares[1][5] = ' ';
+					board.squares[1][4] = 'R';
+					board.squares[1][3] = 'K';
+					board.squares[1][1] = ' ';
+					sign = 'K';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign)
+						{
+							myPieces[i].square[1] = 3 + 48;
+							break;
+						}
+					}
+					sign = 'R';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign && myPieces[i].square[1] == 1 + 48)
+						{
+							myPieces[i].square[1] = 4 + 48;
+							break;
+						}
+					}
 				}
 			}
-			board.squares[move[4] - 48][move[3] - 96] = sign;
-
-			//zmiana 
-			for (auto i = 0; i < myPieces.size(); i++)
+			else
 			{
-				if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
+				if (move == "O-O")
 				{
-					myPieces[i].square[0] = move[4] - 48;
-					myPieces[i].square[1] = move[3] - 96;
-					break;
+					board.squares[8][5] = ' ';
+					board.squares[8][6] = 'r';
+					board.squares[8][7] = 'k';
+					board.squares[8][8] = ' ';
+					sign = 'k';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign)
+						{
+							myPieces[i].square[1] = 7 + 48;
+							break;
+						}
+					}
+					sign = 'r';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign && myPieces[i].square[1] == 8 + 48)
+						{
+							myPieces[i].square[1] = 6 + 48;
+							break;
+						}
+					}
+				}
+				else
+				{
+					board.squares[8][5] = ' ';
+					board.squares[8][4] = 'r';
+					board.squares[8][3] = 'k';
+					board.squares[8][1] = ' ';
+					sign = 'k';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign)
+						{
+							myPieces[i].square[1] = 3 + 48;
+							break;
+						}
+					}
+					sign = 'r';
+					for (auto i = 0; i < myPieces.size(); i++)
+					{
+						if (myPieces[i].sign == sign && myPieces[i].square[1] == 1 + 48)
+						{
+							myPieces[i].square[1] = 4 + 48;
+							break;
+						}
+					}
 				}
 			}
-			board.squares[move[4] - 48][move[3] - 96] = sign;
+		}
+	}
+	void isCastlingPossible(vector<Piece> wPieces, vector<Piece>  bPieces)
+	{
+		if (this->turn == 'w')
+		{
+			if (this->board.squares[1][5] != 'K')
+				return;
+			else
+			{
+				if (this->board.squares[1][8] == 'R' && this->board.squares[1][7] == ' ' && this->board.squares[1][6] == ' ')
+				{
+					if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), "e1-f1") != this->possibleMovesWhite.end())
+					{
+						this->checkInspect = true;
+						Board board = this->board;
+						this->makeMove("e1 - g1", this->board,wPieces,bPieces);
+						for (auto i = bPieces.begin(); i != bPieces.end(); i++)
+							this->possibleMoves(i->square, i->sign);
 
+						this->board = board;
+						this->checkInspect = false;
+						if(getCheck()==false)
+							this->possibleMovesWhite.push_back("O-O");
+					}
+				}
+				if (this->board.squares[1][1] == 'R' && this->board.squares[1][2] == ' ' &&
+					this->board.squares[1][3] == ' ' && this->board.squares[1][4] == ' ')
+				{
+					if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), "e1-d1") != this->possibleMovesWhite.end())
+					{
+						this->checkInspect = true;
+						Board board = this->board;
+						this->makeMove("e1 - c1", this->board, wPieces, bPieces);
+						for (auto i = bPieces.begin(); i != bPieces.end(); i++)
+							this->possibleMoves(i->square, i->sign);
+
+						this->board = board;
+						this->checkInspect = false;
+						if (getCheck() == false)
+							this->possibleMovesWhite.push_back("O-O-O");
+					}
+				}
+			}
+		}
+		else
+		{
+			if (this->board.squares[8][5] != 'k')
+				return;
+			else
+			{
+				if (this->board.squares[8][8] == 'r' && this->board.squares[8][7] == ' ' && this->board.squares[8][6] == ' ')
+				{
+					if (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), "e8-f8") != this->possibleMovesBlack.end())
+					{
+						this->checkInspect = true;
+						Board board = this->board;
+						this->makeMove("e8 - g8", this->board, bPieces,wPieces);
+						for (auto i = wPieces.begin(); i != wPieces.end(); i++)
+							this->possibleMoves(i->square, i->sign);
+
+						this->board = board;
+						this->checkInspect = false;
+						if (getCheck() == false)
+							this->possibleMovesBlack.push_back("O-O");
+					}
+				}
+				if (this->board.squares[8][1] == 'r' && this->board.squares[8][2] == ' ' &&
+					this->board.squares[8][3] == ' ' && this->board.squares[8][4] == ' ')
+				{
+					if (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), "e8-d8") != this->possibleMovesBlack.end())
+					{
+						this->checkInspect = true;
+						Board board = this->board;
+						this->makeMove("e8 - c8", this->board, bPieces, wPieces);
+						for (auto i = wPieces.begin(); i != wPieces.end(); i++)
+							this->possibleMoves(i->square, i->sign);
+
+						this->board = board;
+						this->checkInspect = false;
+						if (getCheck() == false)
+							this->possibleMovesBlack.push_back("O-O-O");
+					}
+				}
+			}
 		}
 	}
 
@@ -370,7 +563,7 @@ int main()
 			else
 			{
 				a.areLegal(a.board,a.possibleMovesWhite,a.whitePieces,a.blackPieces);
-
+				a.isCastlingPossible(a.whitePieces,a.blackPieces);
 				if (a.possibleMovesWhite.empty())
 				{
 					cout << "STALEMATE!!!" << endl;
@@ -400,7 +593,7 @@ int main()
 			else
 			{
 				a.areLegal(a.board, a.possibleMovesBlack, a.blackPieces, a.whitePieces);
-
+				a.isCastlingPossible(a.whitePieces, a.blackPieces);
 				if (a.possibleMovesBlack.empty())
 				{
 					cout << "STALEMATE!!!" << endl;
