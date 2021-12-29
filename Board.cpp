@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <fstream>
 using namespace std;
 class Board
 {
@@ -35,14 +36,14 @@ public:
 	}
 	void show()
 	{
+		fstream out;
+		out.open("out.txt",ios::out);
 		for (int i = 8; i >= 0; i--)
 		{
-			cout << "----------------------------" << endl;
 			for (int j = 0; j <= 8; j++)
-				cout << "|" << this->squares[i][j] << " ";
+				out << this->squares[i][j];
 
-			cout <<"|"<< endl;
+			out << endl;
 		}
-		cout << "----------------------------" << endl;
 	}
 };
