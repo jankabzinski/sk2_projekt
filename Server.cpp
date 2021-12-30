@@ -413,15 +413,27 @@ public:
 					if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), "e1-f1") != this->possibleMovesWhite.end())
 					{
 						this->checkInspect = true;
-						Board board = this->board;
-						this->makeMove("e1 - g1", this->board,wPieces,bPieces);
+						setCheck(false);
+
 						for (auto i = bPieces.begin(); i != bPieces.end(); i++)
 							this->possibleMoves(i->square, i->sign);
 
-						this->board = board;
-						this->checkInspect = false;
-						if(getCheck()==false)
-							this->possibleMovesWhite.push_back("O-O");
+						if (getCheck() == false)
+						{
+							Board board = this->board;
+							this->makeMove("e1 - g1", this->board, wPieces, bPieces);
+							for (auto i = bPieces.begin(); i != bPieces.end(); i++)
+								this->possibleMoves(i->square, i->sign);
+
+							this->board = board;
+							this->checkInspect = false;
+							if (getCheck() == false)
+								this->possibleMovesWhite.push_back("O-O");
+						}
+						else
+						{
+							setCheck(false);
+						}
 					}
 				}
 				if (this->board.squares[1][1] == 'R' && this->board.squares[1][2] == ' ' &&
@@ -429,16 +441,28 @@ public:
 				{
 					if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), "e1-d1") != this->possibleMovesWhite.end())
 					{
+						setCheck(false);
 						this->checkInspect = true;
-						Board board = this->board;
-						this->makeMove("e1 - c1", this->board, wPieces, bPieces);
+
 						for (auto i = bPieces.begin(); i != bPieces.end(); i++)
 							this->possibleMoves(i->square, i->sign);
 
-						this->board = board;
-						this->checkInspect = false;
 						if (getCheck() == false)
-							this->possibleMovesWhite.push_back("O-O-O");
+						{
+							Board board = this->board;
+							this->makeMove("e1 - c1", this->board, wPieces, bPieces);
+							for (auto i = bPieces.begin(); i != bPieces.end(); i++)
+								this->possibleMoves(i->square, i->sign);
+
+							this->board = board;
+							this->checkInspect = false;
+							if (getCheck() == false)
+								this->possibleMovesWhite.push_back("O-O-O");
+						}
+						else
+						{
+							setCheck(false);
+						}
 					}
 				}
 			}
