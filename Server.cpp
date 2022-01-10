@@ -432,6 +432,7 @@ public:
 						}
 						else
 						{
+							this->checkInspect = false;
 							setCheck(false);
 						}
 					}
@@ -461,6 +462,7 @@ public:
 						}
 						else
 						{
+							this->checkInspect = false;
 							setCheck(false);
 						}
 					}

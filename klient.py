@@ -1,6 +1,8 @@
 import os
 from PIL import Image
 import linecache as lc
+import socket
+
 board = Image.open('chessboard.jpg')
 pieces = os.listdir(path='img')
 pieces = ['img\\' + p for p in pieces]
@@ -17,13 +19,34 @@ Q = Image.open(pieces[8])
 q = Image.open(pieces[9])
 R = Image.open(pieces[10])
 r = Image.open(pieces[11])
-s={'B': B, 'b': b, 'K' : K, 'k':k, 'N': N, 'n': n, 'P' : P, 'p' : p, 'Q' : Q, 'q' : q,
-'R' : R, 'r' : r }
+s = {'B': B, 'b': b, 'K': K, 'k': k, 'N': N, 'n': n, 'P': P, 'p': p, 'Q': Q, 'q': q,
+     'R': R, 'r': r}
 
-for i in range(0,69*8,69):
-    gfg = lc.getline('out.txt', i//69 + 1)
-    gfg = gfg[1:]
-    for j in range(0,69*8,69):
-        if gfg[j//69] != ' ':
-            board.paste(s[gfg[j//69]], (2+j,5+i), mask=s[gfg[j//69]]) #2 i 5, co 69
-board.show()
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect('localhost', 1234)
+
+data = []
+while not data:
+    data = sock.recv(1024)
+
+nr_gry = data[0]
+kolor = data[1]
+while True:
+    data = []
+    while not data:
+        data = sock.recv(1024)
+
+    if(data != "Nieprawidlowy ruch. Wykonaj ruch ponownie"):
+        last_position = data
+    else:
+        print(data)
+
+    for i in range(0, 69 * 8, 69):
+        line = lc.getline(last_position, i // 69 + 1)
+        line = line[1:]
+        for j in range(0, 69 * 8, 69):
+            if line[j // 69] != ' ':
+                board.paste(s[line[j // 69]], (2 + j, 5 + i), mask=s[line[j // 69]])  # 2 i 5, co 69
+    board.show()
+    move = input("Wprowadź ruch: format pole-pole lub O-O/O-O-O")
+    sock.send(move)
