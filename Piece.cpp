@@ -3,11 +3,3 @@
 
 using namespace std;
 
-class Piece{
-public:
-	int square[2];
-	char sign;
-};
-
-
-
