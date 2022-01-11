@@ -43,6 +43,7 @@ public:
 
 			x += '\n';
 		}
+		return x;
 	}
 };
 
@@ -56,6 +57,8 @@ public:
 class Game
 {
 public:
+	int sdWhite=-1;
+	int sdBlack=-1;
 	Board board;
 	vector <Piece> whitePieces;
 	vector <Piece> blackPieces;

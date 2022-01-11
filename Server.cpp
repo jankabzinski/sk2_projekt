@@ -19,22 +19,23 @@
 #define QUEUE_SIZE 1024
 struct thread_data_t
 {
-    char buf[100];
+    int gameNo;
+    int playerNo;
+    char buf[200];
     int fd;
-    //TODO
 };
+Game gra[20];
 
 //wskaŸnik na funkcjê opisuj¹c¹ zachowanie w¹tku
 void* ThreadBehavior(void* t_data)
 {
     struct thread_data_t* th_data = (struct thread_data_t*)t_data;
-    //dostêp do pól struktury: (*th_data).pole
-    //TODO (przy zadaniu 1) klawiatura -> wysy³anie albo odbieranie -> wyœwietlanie
-
+    
     while (1)
-    {
+    {    
         memset(th_data->buf, 0, sizeof(th_data->buf));
-        fgets((*th_data).buf, sizeof((*th_data).buf), stdin);
+        string x = gra[th_data->gameNo].board.boardToString();
+        strcpy(th_data->buf, x.c_str());
         write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
     }
     pthread_exit(NULL);
@@ -42,28 +43,21 @@ void* ThreadBehavior(void* t_data)
 
 
 //funkcja obs³uguj¹ca po³¹czenie z serwerem
-void handleConnection(int connection_socket_descriptor) {
-    //wynik funkcji tworz¹cej w¹tek
+void handleConnection(int connection_socket_descriptor, int playerNo) {
     int create_result = 0;
-    char buf2[100];
     //uchwyt na w¹tek
     pthread_t thread1;
 
     //dane, które zostan¹ przekazane do w¹tku
     struct thread_data_t t_data;
     t_data.fd = connection_socket_descriptor;
-
+    t_data.playerNo = playerNo;
+    t_data.gameNo = playerNo / 2;
     create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void*)&t_data);
     if (create_result) {
         printf("B³¹d przy próbie utworzenia w¹tku, kod b³êdu: %d\n", create_result);
         exit(-1);
     }
-
-    /*while (read(t_data.fd, buf2, sizeof(buf2)) > 0)
-    {
-        printf("%s", buf2);
-        memset(buf2, 0, sizeof(buf2));
-    }*/
 }
 int main(int argc, char* argv[])
 {
@@ -101,7 +95,8 @@ int main(int argc, char* argv[])
         fprintf(stderr, "%s: B³¹d przy próbie ustawienia wielkoœci kolejki.\n", argv[0]);
         exit(1);
     }
-
+    
+    int counter = 0;
     while (1)
     {
         connection_socket_descriptor = accept(server_socket_descriptor, NULL, NULL);
@@ -110,8 +105,8 @@ int main(int argc, char* argv[])
             fprintf(stderr, "%s: B³¹d przy próbie utworzenia gniazda dla po³¹czenia.\n", argv[0]);
             exit(1);
         }
-
-        handleConnection(connection_socket_descriptor);
+        handleConnection(connection_socket_descriptor, counter);
+        counter++;
     }
     close(server_socket_descriptor);
     return(0);
