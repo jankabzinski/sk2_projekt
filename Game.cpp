@@ -33,18 +33,16 @@ public:
 		squares[8][4] = 'q';
 		squares[8][5] = 'k';
 	}
-	void show()
+	string boardToString()
 	{
-		fstream out;
-		out.open("out.txt", ios::out);
+		string x="";
 		for (int i = 8; i >= 0; i--)
 		{
 			for (int j = 0; j <= 8; j++)
-				cout << this->squares[i][j];
+				x+= this->squares[i][j];
 
-			cout << endl;
+			x += '\n';
 		}
-		out.close();
 	}
 };
 
@@ -623,7 +621,7 @@ void play()
 	while (true)
 	{
 		string b;
-		a.board.show();
+		//a.board.show();
 		if (a.turn == 'w')
 		{
 			a.possibleMovesWhite.clear();

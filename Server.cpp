@@ -16,6 +16,55 @@
 #include <time.h>
 #include <pthread.h>
 
+#define QUEUE_SIZE 1024
+struct thread_data_t
+{
+    char buf[100];
+    int fd;
+    //TODO
+};
+
+//wskaŸnik na funkcjê opisuj¹c¹ zachowanie w¹tku
+void* ThreadBehavior(void* t_data)
+{
+    struct thread_data_t* th_data = (struct thread_data_t*)t_data;
+    //dostêp do pól struktury: (*th_data).pole
+    //TODO (przy zadaniu 1) klawiatura -> wysy³anie albo odbieranie -> wyœwietlanie
+
+    while (1)
+    {
+        memset(th_data->buf, 0, sizeof(th_data->buf));
+        fgets((*th_data).buf, sizeof((*th_data).buf), stdin);
+        write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+    }
+    pthread_exit(NULL);
+}
+
+
+//funkcja obs³uguj¹ca po³¹czenie z serwerem
+void handleConnection(int connection_socket_descriptor) {
+    //wynik funkcji tworz¹cej w¹tek
+    int create_result = 0;
+    char buf2[100];
+    //uchwyt na w¹tek
+    pthread_t thread1;
+
+    //dane, które zostan¹ przekazane do w¹tku
+    struct thread_data_t t_data;
+    t_data.fd = connection_socket_descriptor;
+
+    create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void*)&t_data);
+    if (create_result) {
+        printf("B³¹d przy próbie utworzenia w¹tku, kod b³êdu: %d\n", create_result);
+        exit(-1);
+    }
+
+    /*while (read(t_data.fd, buf2, sizeof(buf2)) > 0)
+    {
+        printf("%s", buf2);
+        memset(buf2, 0, sizeof(buf2));
+    }*/
+}
 int main(int argc, char* argv[])
 {
     int server_socket_descriptor;
