@@ -155,6 +155,9 @@ public:
 		delete p;
 		setCheck(false);
 		this->turn = 'w';
+
+		for (auto iter = this->whitePieces.begin(); iter != this->whitePieces.end(); iter++)
+			this->possibleMoves(iter->square, iter->sign);
 	}
 
 	void possibleMoves(int oldSquare[2], char piece)
@@ -615,76 +618,59 @@ private:
 		return color != color2;
 	}
 
-};
-void play()
+
+string play(string move)
 {
-	Game a;
-	a.board.set();
-	a.setGame();
 	while (true)
 	{
-		string b;
-		//a.board.show();
-		if (a.turn == 'w')
-		{
-			a.possibleMovesWhite.clear();
-			for (auto iter = a.whitePieces.begin(); iter != a.whitePieces.end(); iter++)
-				a.possibleMoves(iter->square, iter->sign);
-
-			if (a.isMate(a.whitePieces, a.board, a.possibleMovesWhite, a.blackPieces))
+		if (this->turn == 'w')
+		{			
+			while (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), move) == this->possibleMovesWhite.end())
 			{
-				cout << "CHECKMATE!!!" << endl;
-				break;
+				cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
+				return "";
 			}
-			else
-			{
-				a.areLegal(a.board,a.possibleMovesWhite,a.whitePieces,a.blackPieces);
-				a.isCastlingPossible(a.whitePieces,a.blackPieces);
-				if (a.possibleMovesWhite.empty())
-				{
-					cout << "STALEMATE!!!" << endl;
-					break;
-				}
+			this->makeMove(move, this->board, this->whitePieces, this->blackPieces);
 
-				cin >> b;
-				while (find(a.possibleMovesWhite.begin(), a.possibleMovesWhite.end(), b) == a.possibleMovesWhite.end())
-				{
-					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
-					cin >> b;
-				}
-				a.makeMove(b,a.board,a.whitePieces,a.blackPieces);
-			}
+			this->flipTurn();
+			this->possibleMovesBlack.clear();
+			this->possibleMovesWhite.clear();
+
+			for (auto iter = this->blackPieces.begin(); iter != this->blackPieces.end(); iter++)
+				this->possibleMoves(iter->square, iter->sign);
+
+			if (this->isMate(this->blackPieces, this->board, this->possibleMovesBlack, this->whitePieces))
+				return "CHECKMATE!!!";
+			
+			this->areLegal(this->board, this->possibleMovesBlack, this->blackPieces, this->whitePieces);
+			this->isCastlingPossible(this->whitePieces, this->blackPieces);
+			if (this->possibleMovesBlack.empty())
+				return "STALEMATE!!!";
 		}
 		else
 		{
-			a.possibleMovesBlack.clear();
-			for (auto iter = a.blackPieces.begin(); iter != a.blackPieces.end(); iter++)
-				a.possibleMoves(iter->square, iter->sign);
-
-			if (a.isMate(a.blackPieces, a.board, a.possibleMovesBlack, a.whitePieces))
+			while (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), move) == this->possibleMovesBlack.end())
 			{
-				cout << "CHECKMATE!!!" << endl;
-				break;
+				cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
 			}
-			else
-			{
-				a.areLegal(a.board, a.possibleMovesBlack, a.blackPieces, a.whitePieces);
-				a.isCastlingPossible(a.whitePieces, a.blackPieces);
-				if (a.possibleMovesBlack.empty())
-				{
-					cout << "STALEMATE!!!" << endl;
-					break;
-				}
+			this->makeMove(move, this->board, this->blackPieces, this->whitePieces);
 
-				cin >> b;
-				while (find(a.possibleMovesBlack.begin(), a.possibleMovesBlack.end(), b) == a.possibleMovesBlack.end())
-				{
-					cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
-					cin >> b;
-				}
-				a.makeMove(b, a.board, a.blackPieces, a.whitePieces);
-			}
+			this->flipTurn();
+			this->possibleMovesBlack.clear();
+			this->possibleMovesWhite.clear();
+
+			for (auto iter = this->whitePieces.begin(); iter != this->whitePieces.end(); iter++)
+				this->possibleMoves(iter->square, iter->sign);
+
+			if (this->isMate(this->whitePieces, this->board, this->possibleMovesWhite, this->blackPieces))
+				return "CHECKMATE!!!";
+
+			this->areLegal(this->board, this->possibleMovesWhite, this->whitePieces, this->blackPieces);
+			this->isCastlingPossible(this->whitePieces, this->blackPieces);
+			if (this->possibleMovesWhite.empty())
+				return "STALEMATE!!!";
 		}
-		a.flipTurn();
+		
 	}
 }
+};

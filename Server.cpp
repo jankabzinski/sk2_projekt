@@ -19,24 +19,47 @@
 #define QUEUE_SIZE 1024
 struct thread_data_t
 {
+    //pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
     int gameNo;
     int playerNo;
+    char color;
     char buf[200];
     int fd;
 };
-Game gra[20];
+vector <Game> gra;
 
 //wskaŸnik na funkcjê opisuj¹c¹ zachowanie w¹tku
 void* ThreadBehavior(void* t_data)
 {
     struct thread_data_t* th_data = (struct thread_data_t*)t_data;
-    
+    if (th_data->playerNo % 2 == 0)
+    {
+        Game g;
+        g.board.set();
+        g.setGame();
+        gra.push_back(g);
+    }
+
     while (1)
     {    
         memset(th_data->buf, 0, sizeof(th_data->buf));
         string x = gra[th_data->gameNo].board.boardToString();
         strcpy(th_data->buf, x.c_str());
         write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+
+        /*
+        1. wait miedzy mutexami
+        2. modyfikacja klienta - gdy nie twoj ruch, nie pobieraj ruchu
+        */
+        while (th_data->color != gra[th_data->gameNo].turn)
+            ;
+
+        memset(buf, 0, sizeof(buf));
+        while (read(th_data->fd, buf, sizeof(buf)) > 0)
+        {
+            printf("%s", buf2);
+            memset(buf, 0, sizeof(buf));
+        }
     }
     pthread_exit(NULL);
 }
@@ -52,6 +75,7 @@ void handleConnection(int connection_socket_descriptor, int playerNo) {
     struct thread_data_t t_data;
     t_data.fd = connection_socket_descriptor;
     t_data.playerNo = playerNo;
+    t_data.color = playerNo % 2 == 0 ? 'w' : 'b';
     t_data.gameNo = playerNo / 2;
     create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void*)&t_data);
     if (create_result) {
