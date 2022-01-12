@@ -2,7 +2,6 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
 #include "Game.cpp"
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -29,6 +28,16 @@ struct thread_data_t
     int fd;
 };
 vector <Game> gra;
+
+string convertToString(char* a, int size)
+{
+    int i;
+    string s = "";
+    for (i = 0; i < size; i++) {
+        s = s + a[i];
+    }
+    return s;
+}
 
 //wska�nik na funkcj� opisuj�c� zachowanie w�tku
 void* ThreadBehavior(void* t_data)
@@ -62,6 +71,11 @@ void* ThreadBehavior(void* t_data)
             printf("%s", th_data->buf);
             memset(th_data->buf, 0, sizeof(th_data->buf));
         }
+        else
+            break;
+
+        x = convertToString(th_data->buf, sizeof(th_data->buf)/sizeof(char));
+        gra[th_data->gameNo].play(x);
     }
     pthread_exit(NULL);
 }
