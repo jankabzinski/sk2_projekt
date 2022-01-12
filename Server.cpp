@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+
 #include "Game.cpp"
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -28,7 +30,7 @@ struct thread_data_t
 };
 vector <Game> gra;
 
-//wskaŸnik na funkcjê opisuj¹c¹ zachowanie w¹tku
+//wskaï¿½nik na funkcjï¿½ opisujï¿½cï¿½ zachowanie wï¿½tku
 void* ThreadBehavior(void* t_data)
 {
     struct thread_data_t* th_data = (struct thread_data_t*)t_data;
@@ -51,27 +53,27 @@ void* ThreadBehavior(void* t_data)
         1. wait miedzy mutexami
         2. modyfikacja klienta - gdy nie twoj ruch, nie pobieraj ruchu
         */
-        while (th_data->color != gra[th_data->gameNo].turn)
-            ;
+        //while (th_data->color != gra[th_data->gameNo].turn)
+         //   ;
 
-        memset(buf, 0, sizeof(buf));
-        while (read(th_data->fd, buf, sizeof(buf)) > 0)
+        memset(th_data->buf, 0, sizeof(th_data->buf));
+        if (read(th_data->fd, th_data->buf, sizeof(th_data->buf)) > 0)
         {
-            printf("%s", buf2);
-            memset(buf, 0, sizeof(buf));
+            printf("%s", th_data->buf);
+            memset(th_data->buf, 0, sizeof(th_data->buf));
         }
     }
     pthread_exit(NULL);
 }
 
 
-//funkcja obs³uguj¹ca po³¹czenie z serwerem
+//funkcja obsï¿½ugujï¿½ca poï¿½ï¿½czenie z serwerem
 void handleConnection(int connection_socket_descriptor, int playerNo) {
     int create_result = 0;
-    //uchwyt na w¹tek
+    //uchwyt na wï¿½tek
     pthread_t thread1;
 
-    //dane, które zostan¹ przekazane do w¹tku
+    //dane, ktï¿½re zostanï¿½ przekazane do wï¿½tku
     struct thread_data_t t_data;
     t_data.fd = connection_socket_descriptor;
     t_data.playerNo = playerNo;
@@ -79,7 +81,7 @@ void handleConnection(int connection_socket_descriptor, int playerNo) {
     t_data.gameNo = playerNo / 2;
     create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void*)&t_data);
     if (create_result) {
-        printf("B³¹d przy próbie utworzenia w¹tku, kod b³êdu: %d\n", create_result);
+        printf("Bï¿½ï¿½d przy prï¿½bie utworzenia wï¿½tku, kod bï¿½ï¿½du: %d\n", create_result);
         exit(-1);
     }
 }
@@ -97,12 +99,12 @@ int main(int argc, char* argv[])
     memset(&server_address, 0, sizeof(struct sockaddr));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_address.sin_port = htons(SERVER_PORT);
+    server_address.sin_port = htons(atoi(argv[1]));
 
     server_socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket_descriptor < 0)
     {
-        fprintf(stderr, "%s: B³¹d przy próbie utworzenia gniazda..\n", argv[0]);
+        fprintf(stderr, "%s: Bï¿½ï¿½d przy prï¿½bie utworzenia gniazda..\n", argv[0]);
         exit(1);
     }
     setsockopt(server_socket_descriptor, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse_addr_val, sizeof(reuse_addr_val));
@@ -110,13 +112,13 @@ int main(int argc, char* argv[])
     bind_result = bind(server_socket_descriptor, (struct sockaddr*)&server_address, sizeof(struct sockaddr));
     if (bind_result < 0)
     {
-        fprintf(stderr, "%s: B³¹d przy próbie dowi¹zania adresu IP i numeru portu do gniazda.\n", argv[0]);
+        fprintf(stderr, "%s: Bï¿½ï¿½d przy prï¿½bie dowiï¿½zania adresu IP i numeru portu do gniazda.\n", argv[0]);
         exit(1);
     }
 
     listen_result = listen(server_socket_descriptor, QUEUE_SIZE);
     if (listen_result < 0) {
-        fprintf(stderr, "%s: B³¹d przy próbie ustawienia wielkoœci kolejki.\n", argv[0]);
+        fprintf(stderr, "%s: Bï¿½ï¿½d przy prï¿½bie ustawienia wielkoï¿½ci kolejki.\n", argv[0]);
         exit(1);
     }
     
@@ -126,7 +128,7 @@ int main(int argc, char* argv[])
         connection_socket_descriptor = accept(server_socket_descriptor, NULL, NULL);
         if (connection_socket_descriptor < 0)
         {
-            fprintf(stderr, "%s: B³¹d przy próbie utworzenia gniazda dla po³¹czenia.\n", argv[0]);
+            fprintf(stderr, "%s: Bï¿½ï¿½d przy prï¿½bie utworzenia gniazda dla poï¿½ï¿½czenia.\n", argv[0]);
             exit(1);
         }
         handleConnection(connection_socket_descriptor, counter);
