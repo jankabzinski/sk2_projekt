@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <algorithm>
 using namespace std;
 
 class Board
@@ -307,7 +308,7 @@ public:
 			board.squares[move[1] - 48][move[0] - 96] = ' ';
 			if (board.squares[move[4] - 48][move[3] - 96] == ' ')
 			{
-				for (auto i = 0; i < myPieces.size(); i++)
+				for (long unsigned int i = 0; i < myPieces.size(); i++)
 				{
 					if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
 					{
@@ -331,7 +332,7 @@ public:
 				board.squares[move[4] - 48][move[3] - 96] = sign;
 
 				//zmiana 
-				for (auto i = 0; i < myPieces.size(); i++)
+				for (long unsigned int i = 0; i < myPieces.size(); i++)
 				{
 					if (myPieces[i].sign == sign && myPieces[i].square[0] == move[1] - 48 && myPieces[i].square[1] == move[0] - 96)
 					{
@@ -354,7 +355,7 @@ public:
 					board.squares[1][7] = 'K';
 					board.squares[1][8] = ' ';
 					sign = 'K';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign)
 						{
@@ -363,7 +364,7 @@ public:
 						}
 					}
 					sign = 'R';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign && myPieces[i].square[1] == 8 + 48)
 						{
@@ -379,7 +380,7 @@ public:
 					board.squares[1][3] = 'K';
 					board.squares[1][1] = ' ';
 					sign = 'K';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign)
 						{
@@ -388,7 +389,7 @@ public:
 						}
 					}
 					sign = 'R';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign && myPieces[i].square[1] == 1 + 48)
 						{
@@ -407,7 +408,7 @@ public:
 					board.squares[8][7] = 'k';
 					board.squares[8][8] = ' ';
 					sign = 'k';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign)
 						{
@@ -416,7 +417,7 @@ public:
 						}
 					}
 					sign = 'r';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign && myPieces[i].square[1] == 8 + 48)
 						{
@@ -432,7 +433,7 @@ public:
 					board.squares[8][3] = 'k';
 					board.squares[8][1] = ' ';
 					sign = 'k';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign)
 						{
@@ -441,7 +442,7 @@ public:
 						}
 					}
 					sign = 'r';
-					for (auto i = 0; i < myPieces.size(); i++)
+					for (long unsigned int i = 0; i < myPieces.size(); i++)
 					{
 						if (myPieces[i].sign == sign && myPieces[i].square[1] == 1 + 48)
 						{
@@ -570,16 +571,16 @@ private:
 	bool addMove(int from[2], int x, int y)
 	{
 		if (isFree(from,x, y) || isOpponent(from, x, y)) {
-			if (this->turn == 'b' && this->checkInspect == false || this->turn == 'w' && this->checkInspect == true)
+			if ((this->turn == 'b' && this->checkInspect == false) || (this->turn == 'w' && this->checkInspect == true))
 			{
-				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + static_cast<__int64>(y)] + to_string(from[0] + x);
+				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + static_cast<__int64_t>(y)] + to_string(from[0] + x);
 				this->possibleMovesBlack.push_back(move);
 				if (this->board.squares[from[0]+x][from[1]+y] == 'K' && this->turn == 'w' && this->board.squares[from[0]][from[1]] != 'p')
 					setCheck(true);
 			}
 			else
 			{
-				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + static_cast<__int64>(y)] + to_string(from[0] + x);
+				string move = this->board.coordinates[from[1]] + to_string(from[0]) + "-" + this->board.coordinates[from[1] + static_cast<__int64_t>(y)] + to_string(from[0] + x);
 				this->possibleMovesWhite.push_back(move);
 				if (this->board.squares[from[0]+x][from[1]+y] == 'k' && this->turn == 'b' && this->board.squares[from[0]][from[1]] != 'P')
 					setCheck(true);
@@ -625,11 +626,10 @@ string play(string move)
 	{
 		if (this->turn == 'w')
 		{			
-			while (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), move) == this->possibleMovesWhite.end())
-			{
-				cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
-				return "";
-			}
+			if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), move) == this->possibleMovesWhite.end())
+				return "nieprawidlowy ruch. Sprobuj ponownie";
+				
+			
 			this->makeMove(move, this->board, this->whitePieces, this->blackPieces);
 
 			this->flipTurn();
@@ -646,13 +646,14 @@ string play(string move)
 			this->isCastlingPossible(this->whitePieces, this->blackPieces);
 			if (this->possibleMovesBlack.empty())
 				return "STALEMATE!!!";
+			
+			return "";
 		}
 		else
 		{
-			while (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), move) == this->possibleMovesBlack.end())
-			{
-				cout << "nieprawidlowy ruch. Sprobuj ponownie" << endl;
-			}
+			if (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), move) == this->possibleMovesBlack.end())
+				return "nieprawidlowy ruch. Sprobuj ponownie";
+
 			this->makeMove(move, this->board, this->blackPieces, this->whitePieces);
 
 			this->flipTurn();
@@ -669,6 +670,8 @@ string play(string move)
 			this->isCastlingPossible(this->whitePieces, this->blackPieces);
 			if (this->possibleMovesWhite.empty())
 				return "STALEMATE!!!";
+
+			return "";
 		}
 		
 	}
