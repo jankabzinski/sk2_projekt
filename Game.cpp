@@ -619,61 +619,57 @@ private:
 		return color != color2;
 	}
 
+public:
+    string play(string move)
+    {
+        if (this->turn == 'w')
+        {
+            if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), move) == this->possibleMovesWhite.end())
+                return "nieprawidlowy ruch. Sprobuj ponownie";
 
-string play(string move)
-{
-	while (true)
-	{
-		if (this->turn == 'w')
-		{			
-			if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), move) == this->possibleMovesWhite.end())
-				return "nieprawidlowy ruch. Sprobuj ponownie";
-				
-			
-			this->makeMove(move, this->board, this->whitePieces, this->blackPieces);
 
-			this->flipTurn();
-			this->possibleMovesBlack.clear();
-			this->possibleMovesWhite.clear();
+            this->makeMove(move, this->board, this->whitePieces, this->blackPieces);
 
-			for (auto iter = this->blackPieces.begin(); iter != this->blackPieces.end(); iter++)
-				this->possibleMoves(iter->square, iter->sign);
+            this->flipTurn();
+            this->possibleMovesBlack.clear();
+            this->possibleMovesWhite.clear();
 
-			if (this->isMate(this->blackPieces, this->board, this->possibleMovesBlack, this->whitePieces))
-				return "CHECKMATE!!!";
-			
-			this->areLegal(this->board, this->possibleMovesBlack, this->blackPieces, this->whitePieces);
-			this->isCastlingPossible(this->whitePieces, this->blackPieces);
-			if (this->possibleMovesBlack.empty())
-				return "STALEMATE!!!";
-			
-			return "";
-		}
-		else
-		{
-			if (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), move) == this->possibleMovesBlack.end())
-				return "nieprawidlowy ruch. Sprobuj ponownie";
+            for (auto iter = this->blackPieces.begin(); iter != this->blackPieces.end(); iter++)
+                this->possibleMoves(iter->square, iter->sign);
 
-			this->makeMove(move, this->board, this->blackPieces, this->whitePieces);
+            if (this->isMate(this->blackPieces, this->board, this->possibleMovesBlack, this->whitePieces))
+                return "CHECKMATE!!!";
 
-			this->flipTurn();
-			this->possibleMovesBlack.clear();
-			this->possibleMovesWhite.clear();
+            this->areLegal(this->board, this->possibleMovesBlack, this->blackPieces, this->whitePieces);
+            this->isCastlingPossible(this->whitePieces, this->blackPieces);
+            if (this->possibleMovesBlack.empty())
+                return "STALEMATE!!!";
 
-			for (auto iter = this->whitePieces.begin(); iter != this->whitePieces.end(); iter++)
-				this->possibleMoves(iter->square, iter->sign);
+            return "";
+        }
+        else
+        {
+            if (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), move) == this->possibleMovesBlack.end())
+                return "nieprawidlowy ruch. Sprobuj ponownie";
 
-			if (this->isMate(this->whitePieces, this->board, this->possibleMovesWhite, this->blackPieces))
-				return "CHECKMATE!!!";
+            this->makeMove(move, this->board, this->blackPieces, this->whitePieces);
 
-			this->areLegal(this->board, this->possibleMovesWhite, this->whitePieces, this->blackPieces);
-			this->isCastlingPossible(this->whitePieces, this->blackPieces);
-			if (this->possibleMovesWhite.empty())
-				return "STALEMATE!!!";
+            this->flipTurn();
+            this->possibleMovesBlack.clear();
+            this->possibleMovesWhite.clear();
 
-			return "";
-		}
-		
-	}
-}
+            for (auto iter = this->whitePieces.begin(); iter != this->whitePieces.end(); iter++)
+                this->possibleMoves(iter->square, iter->sign);
+
+            if (this->isMate(this->whitePieces, this->board, this->possibleMovesWhite, this->blackPieces))
+                return "CHECKMATE!!!";
+
+            this->areLegal(this->board, this->possibleMovesWhite, this->whitePieces, this->blackPieces);
+            this->isCastlingPossible(this->whitePieces, this->blackPieces);
+            if (this->possibleMovesWhite.empty())
+                return "STALEMATE!!!";
+
+            return "";
+        }
+    }
 };
