@@ -1,9 +1,0 @@
-8rnbqkbnr
-7pppppppp
-6        
-5        
-4        
-3        
-2PPPPPPPP
-1RNBQKBNR
- abcdefgh
