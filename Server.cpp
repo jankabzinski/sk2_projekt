@@ -34,7 +34,7 @@ string convertToString(char* a, int size)
 {
     int i;
     string s = "";
-    for (i = 0; i < size; i++) {
+    for (i = 2; i < size; i++) {
         s = s + a[i];
     }
     return s;
@@ -68,18 +68,18 @@ void* ThreadBehavior(void* t_data)
             memset(th_data->buf, 0, sizeof(th_data->buf));
             if ((m = read(th_data->fd, th_data->buf, sizeof(th_data->buf)) )> 0)
             {
-                x += convertToString(th_data->buf, m-1);
+                x += convertToString(th_data->buf, m-2);
             }
             else
             {
                 memset(th_data->buf, 0, sizeof(th_data->buf));
-                y = "Zawodnik grajacy bialymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca"; 
+                y = "Zawodnik grajacy bialymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca\n"; 
                 strcpy(th_data->buf, y.c_str());
                 write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
                 goto out;
             }
 
-            }while(x.size()!=0 && x[x.size()-1]== '\n');
+            }while(m>1 && th_data->buf[m-2]== '!');
 
             y = gra[th_data->gameNo].play(x);
             if(y == "Nieprawidlowy ruch. Sprobuj ponownie\n")
@@ -115,18 +115,18 @@ void* ThreadBehavior(void* t_data)
             memset(th_data->buf, 0, sizeof(th_data->buf));
             if ((m = read(th_data->fd2, th_data->buf, sizeof(th_data->buf)) )> 0)
             {
-                x += convertToString(th_data->buf, m-1);
+                x += convertToString(th_data->buf, m-2);
             }
             else
             {
                 memset(th_data->buf, 0, sizeof(th_data->buf));
-                y = "Zawodnik grajacy czarnymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca"; 
+                y = "Zawodnik grajacy czarnymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca\n"; 
                 strcpy(th_data->buf, y.c_str());
                 write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
                 goto out;
             }
 
-            }while(x.size()!=0 && x[x.size()-1]== '\n');
+            } while (m > 1 && th_data->buf[m - 2] == '!');
 
             y = gra[th_data->gameNo].play(x);
             if(y == "Nieprawidlowy ruch. Sprobuj ponownie\n")
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
     memset(&server_address, 0, sizeof(struct sockaddr));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_address.sin_port = htons(1234); //htons(atoi(argv[2]));
+    server_address.sin_port = htons(atoi(argv[1])); //htons(atoi(argv[2]));
 
     server_socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket_descriptor < 0)
