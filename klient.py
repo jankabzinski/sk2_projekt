@@ -1,6 +1,5 @@
 import os
 from PIL import Image
-import linecache as lc
 import socket
 
 board = Image.open('chessboard.jpg')
@@ -23,28 +22,40 @@ s = {'B': B, 'b': b, 'K': K, 'k': k, 'N': N, 'n': n, 'P': P, 'p': p, 'Q': Q, 'q'
      'R': R, 'r': r}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('localhost', 1234))
+sock.connect(('192.168.0.27', 1234))
 
 while True:
     data = []
     while not data:
-        data = sock.recv(90)
+        data = sock.recv(200)
+
+    komunikat = []
+    for item in data.decode().split("\n"):
+        komunikat = item
+        break
 
     data = str(data)
-    data=data[2:]
-    if(data != "Nieprawidlowy ruch. Wykonaj ruch ponownie\n"):
-        last_position = data
+    data = data[2:]
+    if komunikat == "Nieprawidlowy ruch. Sprobuj ponownie":
+        print(komunikat)
+    elif (komunikat == "Zawodnik grajacy bialymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca" or
+          komunikat == "Zawodnik grajacy czarnymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca" or
+          komunikat == "STALEMATE!!!" or komunikat == "CHECKMATE!!!"):
+        print(komunikat)
+        break
     else:
-        print(data)
+        last_position = data
 
+    print(last_position)
 
     for i in range(0, 69 * 8, 69):
-        line = last_position[i//69*11:i//69*11+11]
-        line = line[1:]
+        line = last_position[i // 69 * 11:i // 69 * 11 + 11]
+        line = line[1:8]
         for j in range(0, 69 * 8, 69):
             if line[j // 69] != ' ':
                 board.paste(s[line[j // 69]], (2 + j, 5 + i), mask=s[line[j // 69]])  # 2 i 5, co 69
-        
+
     board.show()
-    move = input("Wprowadź ruch: format pole-pole lub O-O/O-O-O")
-    sock.send(move)
+    move = input("Wprowadź ruch: format pole-pole lub O-O/O-O-O\n")
+    move += '!'
+    sock.send(move.encode())
