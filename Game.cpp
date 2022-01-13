@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <pthread.h>
 using namespace std;
 
 class Board
@@ -58,6 +59,7 @@ public:
 class Game
 {
 public:
+	//pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 	int sdWhite=-1;
 	int sdBlack=-1;
 	Board board;
@@ -79,7 +81,7 @@ public:
 
 	void flipTurn()
 	{
-		this->turn = this->turn == 'b' ? 'w' : 'b';
+		this->turn = this->turn == 'w' ? 'b' : 'w';
 	}
 
 	void setGame()
@@ -626,7 +628,6 @@ public:
         {
             if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), move) == this->possibleMovesWhite.end())
                 return "nieprawidlowy ruch. Sprobuj ponownie";
-
 
             this->makeMove(move, this->board, this->whitePieces, this->blackPieces);
 
