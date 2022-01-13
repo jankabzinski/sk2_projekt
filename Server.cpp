@@ -18,6 +18,7 @@
 #include <pthread.h>
 
 #define QUEUE_SIZE 1024
+#define PORT 1234
 struct thread_data_t
 {
     //pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
@@ -34,7 +35,7 @@ string convertToString(char* a, int size)
 {
     int i;
     string s = "";
-    for (i = 2; i < size; i++) {
+    for (i = 0; i < size; i++) {
         s = s + a[i];
     }
     return s;
@@ -51,11 +52,12 @@ void* ThreadBehavior(void* t_data)
     gra.push_back(g);
     string y;
     int m;
+
     memset(th_data->buf, 0, sizeof(th_data->buf));
     string x = gra[th_data->gameNo].board.boardToString();
     strcpy(th_data->buf, x.c_str());
     write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
-    write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
+    //write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
 
     while (1)
     {           
@@ -68,7 +70,7 @@ void* ThreadBehavior(void* t_data)
             memset(th_data->buf, 0, sizeof(th_data->buf));
             if ((m = read(th_data->fd, th_data->buf, sizeof(th_data->buf)) )> 0)
             {
-                x += convertToString(th_data->buf, m-2);
+                x += convertToString(th_data->buf, m-1);
             }
             else
             {
@@ -94,7 +96,7 @@ void* ThreadBehavior(void* t_data)
         memset(th_data->buf, 0, sizeof(th_data->buf));
         x = gra[th_data->gameNo].board.boardToString();
         strcpy(th_data->buf, x.c_str());
-        write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+        //write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
         write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
         
         if(y != "")
@@ -115,7 +117,7 @@ void* ThreadBehavior(void* t_data)
             memset(th_data->buf, 0, sizeof(th_data->buf));
             if ((m = read(th_data->fd2, th_data->buf, sizeof(th_data->buf)) )> 0)
             {
-                x += convertToString(th_data->buf, m-2);
+                x += convertToString(th_data->buf, m-1);
             }
             else
             {
@@ -142,7 +144,7 @@ void* ThreadBehavior(void* t_data)
         x = gra[th_data->gameNo].board.boardToString();
         strcpy(th_data->buf, x.c_str());
         write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
-        write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
+        //write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
         
         if(y != "")
         {
@@ -196,7 +198,7 @@ int main(int argc, char* argv[])
     memset(&server_address, 0, sizeof(struct sockaddr));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_address.sin_port = htons(atoi(argv[1])); //htons(atoi(argv[2]));
+    server_address.sin_port = htons(PORT); 
 
     server_socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket_descriptor < 0)
