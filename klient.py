@@ -6,6 +6,7 @@ board = Image.open('chessboard.jpg')
 pieces = os.listdir(path='img')
 pieces = ['img//' + p for p in pieces]
 
+
 B = Image.open(pieces[0])
 b = Image.open(pieces[1])
 K = Image.open(pieces[2])
@@ -23,9 +24,10 @@ s = {'B': B, 'b': b, 'K': K, 'k': k, 'N': N, 'n': n, 'P': P, 'p': p, 'Q': Q, 'q'
 
 adres = input("Podaj adres serwera\n")
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('adres', 1234))
+sock.connect((adres, 1234))
 
 while True:
+    board = Image.open('chessboard.jpg')
     data = []
     while not data:
         data = sock.recv(200)
@@ -51,7 +53,7 @@ while True:
 
     for i in range(0, 69 * 8, 69):
         line = last_position[i // 69 * 11:i // 69 * 11 + 11]
-        line = line[1:8]
+        line = line[1:9]
         for j in range(0, 69 * 8, 69):
             if line[j // 69] != ' ':
                 board.paste(s[line[j // 69]], (2 + j, 5 + i), mask=s[line[j // 69]])  # 2 i 5, co 69
