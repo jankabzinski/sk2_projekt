@@ -5,7 +5,7 @@ import socket
 
 board = Image.open('chessboard.jpg')
 pieces = os.listdir(path='img')
-pieces = ['img\\' + p for p in pieces]
+pieces = ['img//' + p for p in pieces]
 
 B = Image.open(pieces[0])
 b = Image.open(pieces[1])
@@ -23,30 +23,29 @@ s = {'B': B, 'b': b, 'K': K, 'k': k, 'N': N, 'n': n, 'P': P, 'p': p, 'Q': Q, 'q'
      'R': R, 'r': r}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect('localhost', 1234)
+sock.connect(('localhost', 1234))
 
-data = []
-while not data:
-    data = sock.recv(1024)
-
-nr_gry = data[0]
-kolor = data[1]
 while True:
     data = []
     while not data:
-        data = sock.recv(1024)
+        data = sock.recv(90)
 
-    if(data != "Nieprawidlowy ruch. Wykonaj ruch ponownie"):
+    data = str(data)
+    data=data[2:]
+    if(data != "Nieprawidlowy ruch. Wykonaj ruch ponownie\n"):
         last_position = data
     else:
         print(data)
 
+    print(data)
+
     for i in range(0, 69 * 8, 69):
-        line = lc.getline(last_position, i // 69 + 1)
+        line = last_position[i//69*11:i//69*11+11]
         line = line[1:]
         for j in range(0, 69 * 8, 69):
             if line[j // 69] != ' ':
                 board.paste(s[line[j // 69]], (2 + j, 5 + i), mask=s[line[j // 69]])  # 2 i 5, co 69
+        
     board.show()
     move = input("Wprowadź ruch: format pole-pole lub O-O/O-O-O")
     sock.send(move)
