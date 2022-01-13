@@ -22,10 +22,11 @@ struct thread_data_t
 {
     //pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
     int gameNo;
-    int playerNo;
-    char color;
+    //int playerNo;
+    //char color;
     char buf[200];
-    int fd;
+    long long fd;
+    int fd2;
 };
 vector <Game> gra;
 
@@ -43,47 +44,127 @@ string convertToString(char* a, int size)
 void* ThreadBehavior(void* t_data)
 {
     struct thread_data_t* th_data = (struct thread_data_t*)t_data;
-    if (th_data->playerNo % 2 == 0)
-    {
-        Game g;
-        g.board.set();
-        g.setGame();
-        gra.push_back(g);
-    }
+    
+    Game g;
+    g.board.set();
+    g.setGame();
+    gra.push_back(g);
+    string y;
+    int m;
+    memset(th_data->buf, 0, sizeof(th_data->buf));
+    string x = gra[th_data->gameNo].board.boardToString();
+    strcpy(th_data->buf, x.c_str());
+    write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+    write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
 
     while (1)
-    {    
-        
+    {           
+        m = 0;
+        do
+        {
+            x= "";
+            do
+            {
+            memset(th_data->buf, 0, sizeof(th_data->buf));
+            if ((m = read(th_data->fd, th_data->buf, sizeof(th_data->buf)) )> 0)
+            {
+                x += convertToString(th_data->buf, m-1);
+            }
+            else
+            {
+                memset(th_data->buf, 0, sizeof(th_data->buf));
+                y = "Zawodnik grajacy bialymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca"; 
+                strcpy(th_data->buf, y.c_str());
+                write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
+                goto out;
+            }
+
+            }while(x.size()!=0 && x[x.size()-1]== '\n');
+
+            y = gra[th_data->gameNo].play(x);
+            if(y == "Nieprawidlowy ruch. Sprobuj ponownie\n")
+            {
+                memset(th_data->buf, 0, sizeof(th_data->buf));
+                strcpy(th_data->buf, y.c_str());
+                write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+            }
+
+        }while(y == "Nieprawidlowy ruch. Sprobuj ponownie\n" );
+
         memset(th_data->buf, 0, sizeof(th_data->buf));
-        string x = gra[th_data->gameNo].board.boardToString();
+        x = gra[th_data->gameNo].board.boardToString();
         strcpy(th_data->buf, x.c_str());
         write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+        write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
         
-        memset(th_data->buf, 0, sizeof(th_data->buf));
-        int m;
-        
-        if ((m = read(th_data->fd, th_data->buf, sizeof(th_data->buf)) )> 0)
+        if(y != "")
         {
-            cout << th_data->color<< " " << th_data->gameNo << " "<< th_data->playerNo <<endl;
-                printf("%s", th_data->buf);
-        }
-        else
+            memset(th_data->buf, 0, sizeof(th_data->buf));
+            strcpy(th_data->buf, y.c_str());
+            write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+            write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
             break;
+        }
 
-        //pthread_mutex_lock(&gra[th_data->gameNo].lock);
-        x = convertToString(th_data->buf, 5);//-1 + sizeof(th_data->buf)/sizeof(char));
-        cout << gra[th_data->gameNo].play(x)<<endl;
-        //pthread_mutex_unlock(&gra[th_data->gameNo].lock);
+        m = 0;
+        do
+        {
+            x= "";
+            do
+            {
+            memset(th_data->buf, 0, sizeof(th_data->buf));
+            if ((m = read(th_data->fd2, th_data->buf, sizeof(th_data->buf)) )> 0)
+            {
+                x += convertToString(th_data->buf, m-1);
+            }
+            else
+            {
+                memset(th_data->buf, 0, sizeof(th_data->buf));
+                y = "Zawodnik grajacy czarnymi rozlaczyl sie, wygrales. Gratulacje, ale nie do konca"; 
+                strcpy(th_data->buf, y.c_str());
+                write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+                goto out;
+            }
+
+            }while(x.size()!=0 && x[x.size()-1]== '\n');
+
+            y = gra[th_data->gameNo].play(x);
+            if(y == "Nieprawidlowy ruch. Sprobuj ponownie\n")
+            {
+                memset(th_data->buf, 0, sizeof(th_data->buf));
+                strcpy(th_data->buf, y.c_str());
+                write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
+            }
+
+        }while(y == "Nieprawidlowy ruch. Sprobuj ponownie\n" );
+
+        memset(th_data->buf, 0, sizeof(th_data->buf));
+        x = gra[th_data->gameNo].board.boardToString();
+        strcpy(th_data->buf, x.c_str());
+        write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+        write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
         
-
-
+        if(y != "")
+        {
+            memset(th_data->buf, 0, sizeof(th_data->buf));
+            strcpy(th_data->buf, y.c_str());
+            write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
+            write((*th_data).fd2, (*th_data).buf, sizeof((*th_data).buf));
+            break;
+        }
     }
+    if(false)
+    {
+        out:
+        ;
+    }
+
     pthread_exit(NULL);
 }
 
 
 //funkcja obs�uguj�ca po��czenie z serwerem
-void handleConnection(int connection_socket_descriptor, int playerNo) {
+void handleConnection(int connection_socket_descriptor, int connection_socket_descriptor2, int gamNo) {
     int create_result = 0;
     //uchwyt na w�tek
     pthread_t thread1;
@@ -91,9 +172,10 @@ void handleConnection(int connection_socket_descriptor, int playerNo) {
     //dane, kt�re zostan� przekazane do w�tku
     struct thread_data_t t_data;
     t_data.fd = connection_socket_descriptor;
-    t_data.playerNo = playerNo;
-    t_data.color = playerNo % 2 == 0 ? 'w' : 'b';
-    t_data.gameNo = playerNo / 2;
+    t_data.fd2 = connection_socket_descriptor2;
+    //t_data.playerNo = playerNo;
+    //t_data.color = playerNo % 2 == 0 ? 'w' : 'b';
+    t_data.gameNo = gamNo;
     create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void*)&t_data);
     if (create_result) {
         printf("B��d przy pr�bie utworzenia w�tku, kod b��du: %d\n", create_result);
@@ -138,6 +220,7 @@ int main(int argc, char* argv[])
     }
     
     int counter = 0;
+    int csd1=0;
     while (1)
     {
         connection_socket_descriptor = accept(server_socket_descriptor, NULL, NULL);
@@ -146,7 +229,15 @@ int main(int argc, char* argv[])
             fprintf(stderr, "%s: B��d przy pr�bie utworzenia gniazda dla po��czenia.\n", argv[0]);
             exit(1);
         }
-        handleConnection(connection_socket_descriptor, counter);
+        if(counter % 2 == 1)
+        {
+            handleConnection(csd1, connection_socket_descriptor, counter/2);
+        }
+        else
+        {
+            csd1 = connection_socket_descriptor;
+        }
+        //cout << csd1 << " " <<connection_socket_descriptor << " d" <<endl;
         counter++;
     }
     close(server_socket_descriptor);
