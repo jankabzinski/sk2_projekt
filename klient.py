@@ -21,8 +21,9 @@ r = Image.open(pieces[11])
 s = {'B': B, 'b': b, 'K': K, 'k': k, 'N': N, 'n': n, 'P': P, 'p': p, 'Q': Q, 'q': q,
      'R': R, 'r': r}
 
+adres = input("Podaj adres serwera\n")
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('192.168.0.27', 1234))
+sock.connect(('adres', 1234))
 
 while True:
     data = []
