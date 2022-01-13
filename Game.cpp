@@ -59,7 +59,6 @@ public:
 class Game
 {
 public:
-	//pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 	int sdWhite=-1;
 	int sdBlack=-1;
 	Board board;
@@ -627,7 +626,7 @@ public:
         if (this->turn == 'w')
         {
             if (find(this->possibleMovesWhite.begin(), this->possibleMovesWhite.end(), move) == this->possibleMovesWhite.end())
-                return "nieprawidlowy ruch. Sprobuj ponownie";
+                return "Nieprawidlowy ruch. Sprobuj ponownie\n";
 
             this->makeMove(move, this->board, this->whitePieces, this->blackPieces);
 
@@ -651,7 +650,7 @@ public:
         else
         {
             if (find(this->possibleMovesBlack.begin(), this->possibleMovesBlack.end(), move) == this->possibleMovesBlack.end())
-                return "nieprawidlowy ruch. Sprobuj ponownie";
+                return "Nieprawidlowy ruch. Sprobuj ponownie\n";
 
             this->makeMove(move, this->board, this->blackPieces, this->whitePieces);
 
