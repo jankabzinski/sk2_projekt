@@ -53,29 +53,30 @@ void* ThreadBehavior(void* t_data)
 
     while (1)
     {    
+        
         memset(th_data->buf, 0, sizeof(th_data->buf));
         string x = gra[th_data->gameNo].board.boardToString();
         strcpy(th_data->buf, x.c_str());
         write((*th_data).fd, (*th_data).buf, sizeof((*th_data).buf));
-
-        /*
-        1. wait miedzy mutexami
-        2. modyfikacja klienta - gdy nie twoj ruch, nie pobieraj ruchu
-        */
-        //while (th_data->color != gra[th_data->gameNo].turn)
-         //   ;
-
+        
         memset(th_data->buf, 0, sizeof(th_data->buf));
-        if (read(th_data->fd, th_data->buf, sizeof(th_data->buf)) > 0)
+        int m;
+        
+        if ((m = read(th_data->fd, th_data->buf, sizeof(th_data->buf)) )> 0)
         {
-            printf("%s", th_data->buf);
-            memset(th_data->buf, 0, sizeof(th_data->buf));
+            cout << th_data->color<< " " << th_data->gameNo << " "<< th_data->playerNo <<endl;
+                printf("%s", th_data->buf);
         }
         else
             break;
 
-        x = convertToString(th_data->buf, sizeof(th_data->buf)/sizeof(char));
-        gra[th_data->gameNo].play(x);
+        //pthread_mutex_lock(&gra[th_data->gameNo].lock);
+        x = convertToString(th_data->buf, 5);//-1 + sizeof(th_data->buf)/sizeof(char));
+        cout << gra[th_data->gameNo].play(x)<<endl;
+        //pthread_mutex_unlock(&gra[th_data->gameNo].lock);
+        
+
+
     }
     pthread_exit(NULL);
 }
@@ -113,7 +114,7 @@ int main(int argc, char* argv[])
     memset(&server_address, 0, sizeof(struct sockaddr));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_address.sin_port = htons(atoi(argv[1]));
+    server_address.sin_port = htons(1234); //htons(atoi(argv[2]));
 
     server_socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket_descriptor < 0)
