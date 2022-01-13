@@ -37,7 +37,6 @@ while True:
     else:
         print(data)
 
-    print(data)
 
     for i in range(0, 69 * 8, 69):
         line = last_position[i//69*11:i//69*11+11]
